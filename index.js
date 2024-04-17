@@ -1,7 +1,11 @@
 const express = require('express');
+const morgan = require('morgan');
 const app = express();
 
 app.use(express.json());
+// app.use(morgan('tiny'));
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
+
 
 let persons = [
   { 
@@ -32,6 +36,9 @@ app.get('/', (req, res) => {
 
 app.get('/api/persons', (req, res) => {
   res.json(persons);
+  morgan.token('body', (req, res) => {
+    return JSON.stringify(req.body);
+  });
 });
 
 app.get('/api/persons/:id', (req, res) => {
@@ -42,12 +49,18 @@ app.get('/api/persons/:id', (req, res) => {
   } else {
     res.status(404).end();
   }
+  morgan.token('body', (req, res) => {
+    return JSON.stringify(req.body);
+  });
 });
 
 app.delete('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id);
   persons = persons.filter(person => person.id !== id);
   res.status(204).end();
+  morgan.token('body', (req, res) => {
+    return JSON.stringify(req.body);
+  });
 });
 
 app.post('/api/persons', (req, res) => {
@@ -76,6 +89,9 @@ app.post('/api/persons', (req, res) => {
   person.id = newRandomId();
   persons = persons.concat(person);
   res.json(person);
+  morgan.token('body', (req, res) => {
+    return JSON.stringify(req.body);
+  });
 });
 
 app.get('/info', (req, res) => {
@@ -84,6 +100,9 @@ app.get('/info', (req, res) => {
     <p>Phonebook has info for ${persons.length} people</p>
     <p>${date}</p>
   `);
+  morgan.token('body', (req, res) => {
+    return JSON.stringify(req.body);
+  });
 });
 
 const PORT = 3001;
