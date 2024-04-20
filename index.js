@@ -15,20 +15,24 @@ app.use(cors());
 // }
 // app.use(unknownEndpoint);
 
+/** Error Handling Middleware */
 const errorHandler = (error, req, res, next) => {
   console.error(error.message);
   if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id' });
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message });
   }
   next(error);
 }
 app.use(errorHandler);
 
-
+/** API root */
 app.get('/', (req, res) => {
-  res.send('Hello World');
+  res.send('Routes: /api/persons, /api/persons/:id, /info');
 });
 
+/** GET all persons */
 app.get('/api/persons', (req, res, next) => {
   Person.find({})
     .then((result) => {
@@ -44,6 +48,7 @@ app.get('/api/persons', (req, res, next) => {
   });
 });
 
+/** GET a single person */
 app.get('/api/persons/:id', (req, res, next) => {
   const id = req.params.id;
   Person.findById(id)
@@ -60,6 +65,7 @@ app.get('/api/persons/:id', (req, res, next) => {
   });
 });
 
+/** DELETE a single person */
 app.delete('/api/persons/:id', (req, res, next) => {
   const id = req.params.id;
   Person.findByIdAndDelete(id)
@@ -72,6 +78,7 @@ app.delete('/api/persons/:id', (req, res, next) => {
   });
 });
 
+/** POST a new person */
 app.post('/api/persons', (req, res, next) => {
   const body = req.body;
   if (!body.name || !body.number) {
@@ -97,6 +104,7 @@ app.post('/api/persons', (req, res, next) => {
   });
 });
 
+/** UPDATE a single person */
 app.put('/api/persons/:id', (req, res, next) => {
   const id = req.params.id;
   const body = req.body;
@@ -104,7 +112,11 @@ app.put('/api/persons/:id', (req, res, next) => {
     name: body.name,
     number: body.number
   };
-  Person.findByIdAndUpdate(id, person, { new: true })
+  Person.findByIdAndUpdate(
+    id, 
+    person, 
+    { new: true, runValidators: true, context: 'query' }
+  )
     .then((updatedPerson) => {
       res.json(updatedPerson);
     })
@@ -114,6 +126,7 @@ app.put('/api/persons/:id', (req, res, next) => {
   });
 });
 
+/** GET info */
 app.get('/info', (req, res, next) => {
   Person.find({})
     .then((result) => {
