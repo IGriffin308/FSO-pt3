@@ -10,10 +10,10 @@ app.use(express.json());
 app.use(morgan('tiny'));
 app.use(cors());
 
-const unknownEndpoint = (req, res) => {
-  res.status(404).send({ error: 'unknown endpoint' });
-}
-app.use(unknownEndpoint);
+// const unknownEndpoint = (req, res) => {
+//   res.status(404).send({ error: 'unknown endpoint' });
+// }
+// app.use(unknownEndpoint);
 
 const errorHandler = (error, req, res, next) => {
   console.error(error.message);
@@ -62,7 +62,7 @@ app.get('/api/persons/:id', (req, res, next) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
   const id = req.params.id;
-  Person.findByIdAndRemove(id)
+  Person.findByIdAndDelete(id)
     .then(() => {
       res.status(204).end();
     })

@@ -5,9 +5,7 @@ if (process.argv.length < 3) {
   process.exit(1);
 }
 
-const password = process.argv[2];
-
-const url = `mongodb+srv://griffinian870:${password}@fso0.41rrhin.mongodb.net/?retryWrites=true&w=majority&appName=Fso0`;
+const url = process.env.MONGODB_URI;
 
 mongoose.set('strictQuery', false);
 mongoose.connect(url);
